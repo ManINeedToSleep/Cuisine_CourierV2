@@ -2,17 +2,17 @@ import { db } from './db'
 
 export async function getFavorites(userId: string) {
   return await db.favorite.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' }
+    where: { user_id: userId },
+    orderBy: { created_at: 'desc' }
   })
 }
 
 export async function toggleFavorite(userId: string, recipeId: string) {
   const existing = await db.favorite.findUnique({
     where: {
-      userId_recipeId: {
-        userId,
-        recipeId
+      user_id_recipe_id: {
+        user_id: userId,
+        recipe_id: recipeId
       }
     }
   })
@@ -21,9 +21,9 @@ export async function toggleFavorite(userId: string, recipeId: string) {
     // Remove favorite
     await db.favorite.delete({
       where: {
-        userId_recipeId: {
-          userId,
-          recipeId
+        user_id_recipe_id: {
+          user_id: userId,
+          recipe_id: recipeId
         }
       }
     })
@@ -32,8 +32,8 @@ export async function toggleFavorite(userId: string, recipeId: string) {
     // Add favorite
     await db.favorite.create({
       data: {
-        userId,
-        recipeId
+        user_id: userId,
+        recipe_id: recipeId
       }
     })
     return true // Now favorited
@@ -43,9 +43,9 @@ export async function toggleFavorite(userId: string, recipeId: string) {
 export async function isFavorited(userId: string, recipeId: string) {
   const favorite = await db.favorite.findUnique({
     where: {
-      userId_recipeId: {
-        userId,
-        recipeId
+      user_id_recipe_id: {
+        user_id: userId,
+        recipe_id: recipeId
       }
     }
   })
