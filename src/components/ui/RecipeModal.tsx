@@ -7,11 +7,12 @@ import { MealDBRecipe } from '@/lib/mealdb'
 interface RecipeModalProps {
   recipe: MealDBRecipe
   onClose: () => void
+  isFavorited: boolean
+  onFavorite: () => void
 }
 
-export default function RecipeModal({ recipe, onClose }: RecipeModalProps) {
+export default function RecipeModal({ recipe, onClose, isFavorited, onFavorite }: RecipeModalProps) {
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients')
-  const [isFavorited, setIsFavorited] = useState(false)
 
   // Get ingredients and measurements
   const ingredients = Array.from({ length: 20 }, (_, i) => {
@@ -36,10 +37,6 @@ export default function RecipeModal({ recipe, onClose }: RecipeModalProps) {
       })
       .flat()
       .filter(step => step)
-  }
-
-  const handleFavoriteClick = () => {
-    setIsFavorited(!isFavorited)
   }
 
   return (
@@ -68,12 +65,19 @@ export default function RecipeModal({ recipe, onClose }: RecipeModalProps) {
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-[var(--wood-light)]">{recipe.strMeal}</h2>
-              <button
-                onClick={handleFavoriteClick}
-                className="cabin-button text-sm"
-              >
-                {isFavorited ? '❤️ Favorited' : '🤍 Favorite'}
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFavorite();
+                  }}
+                  className="cabin-button text-sm relative group"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isFavorited ? '❤️ Favorited' : '🤍 Add to Favorites'}
+                  </span>
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <span className="px-2 py-1 rounded-full bg-[var(--wood-light)]/10 text-[var(--wood-light)] text-sm">

@@ -18,12 +18,6 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
-                  href="/browse" 
-                  className="cabin-button text-[var(--wood-light)] inline-flex items-center justify-center"
-                >
-                  Browse Recipes
-                </Link>
-                <Link 
                   href="/auth" 
                   className="cabin-button text-[var(--wood-light)] inline-flex items-center justify-center"
                 >

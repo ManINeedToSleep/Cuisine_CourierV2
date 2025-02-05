@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify, JWTPayload } from 'jose'
 import bcrypt from 'bcryptjs'
-import { prisma } from './db'
+import { db } from './db'
+import { cookies } from 'next/headers'
 
 export async function hashPassword(password: string) {
   return await bcrypt.hash(password, 10)
@@ -34,14 +35,17 @@ export async function verifyToken(token: string) {
   }
 }
 
-export async function getSession(token: string | null) {
+export async function getSession() {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('token')?.value
+  
   if (!token) return null
   
   try {
     const payload = await verifyToken(token)
     if (!payload) return null
 
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: payload.sub as string },
       select: {
         id: true,
@@ -55,4 +59,22 @@ export async function getSession(token: string | null) {
   } catch {
     return null
   }
+}
+
+export async function createSession(userId: string) {
+  const session = await db.session.create({
+    data: {
+      id: crypto.randomUUID(),
+      user_id: userId,
+      active_expires: BigInt(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      idle_expires: BigInt(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+    }
+  })
+  return session
+}
+
+export async function logout(sessionId: string) {
+  await db.session.delete({
+    where: { id: sessionId }
+  })
 } 

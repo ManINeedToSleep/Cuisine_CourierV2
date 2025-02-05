@@ -72,9 +72,28 @@ export type MealDBArea = {
 }
 
 export async function getFeaturedRecipes(): Promise<MealDBRecipe[]> {
-  const res = await fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=')
-  const data = await res.json()
-  return data.meals || []
+  const cached = getCached<MealDBRecipe[]>('featured')
+  if (cached) return cached
+
+  try {
+    // Get recipes for each letter of the alphabet
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
+    const recipesPromises = alphabet.map(letter =>
+      fetch(`${MEALDB_API}/search.php?f=${letter}`)
+        .then(res => res.json())
+        .then(data => data.meals || [])
+    )
+
+    const allRecipes = await Promise.all(recipesPromises)
+    const flattenedRecipes = allRecipes.flat()
+
+    // Cache the results
+    setCache('featured', flattenedRecipes)
+    return flattenedRecipes
+  } catch (error) {
+    console.error('Error fetching all recipes:', error)
+    return []
+  }
 }
 
 export async function getCategories(): Promise<string[]> {
@@ -123,4 +142,16 @@ export async function getAreas(): Promise<string[]> {
   const res = await fetch('https://www.themealdb.com/api/json/v1/1/list.php?a=list')
   const data = await res.json()
   return data.meals.map((meal: { strArea: string }) => meal.strArea)
+}
+
+// Add a function to get a single recipe by ID
+export async function getRecipeById(id: string): Promise<MealDBRecipe | null> {
+  try {
+    const res = await fetch(`${MEALDB_API}/lookup.php?i=${id}`)
+    const data = await res.json()
+    return data.meals?.[0] || null
+  } catch (error) {
+    console.error('Error fetching recipe:', error)
+    return null
+  }
 } 
