@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm cabin colors */
+  --wood-dark: #5C4033;
+  --wood-medium: #8B7355;
+  --wood-light: #DEB887;
+  --sunlight: #FFE5B4;
+  --cabin-shadow: #2C1810;
+  --spice-red: #8B4513;
+  --herb-green: #556B2F;
+  
+  /* Theme colors */
+  --background: #FDF5E6; /* Warm off-white */
+  --foreground: #2C1810; /* Deep wood brown */
+  --wood-text: #A67B5B; /* Darker, richer brown for text */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #2C1810;
+    --foreground: #DEB887;
+    --sunlight: #8B4513;
+  }
+}
+
+@layer components {
+  .cabin-border {
+    @apply border-2 border-[var(--wood-medium)] rounded-lg shadow-lg relative;
+    background: linear-gradient(
+      to bottom right,
+      var(--wood-light),
+      var(--wood-medium)
+    );
+    box-shadow: 
+      0 4px 6px var(--cabin-shadow),
+      inset 0 1px 0 var(--sunlight);
+  }
+
+  .cabin-button {
+    @apply px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105;
+    background: linear-gradient(
+      to bottom,
+      var(--wood-medium),
+      var(--wood-dark)
+    );
+    border: 2px solid var(--wood-light);
+    box-shadow: 
+      0 4px 6px var(--cabin-shadow),
+      inset 0 1px 0 var(--sunlight);
+  }
+
+  .recipe-card {
+    @apply cabin-border p-6 hover:scale-105 transition-all duration-300;
+    transform-origin: center;
+  }
+
+  .recipe-card:hover {
+    box-shadow: 
+      0 8px 12px var(--cabin-shadow),
+      inset 0 1px 0 var(--sunlight);
+  }
+
+  .spice-text {
+    color: var(--spice-red);
+  }
+
+  .herb-text {
+    color: var(--herb-green);
+  }
+
+  .text-wood {
+    color: var(--wood-text);
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans);
+  /* Enhanced sunlight gradient effect */
+  background: linear-gradient(
+    120deg,
+    var(--sunlight) 0%,
+    var(--background) 15%,
+    var(--background) 85%,
+    var(--sunlight) 100%
+  );
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Add this for a subtle wood grain effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.15' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.1'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Add these styles for custom scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood-medium) var(--wood-light);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--wood-light);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--wood-medium);
+  border-radius: 3px;
+  border: 2px solid var(--wood-light);
+}
+
+/* Add hover effect to scrollbar */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--spice-red);
+}

@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Required for Neon with Prisma
+}
+
+// Users Table - Stores user information
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String?
+  image         String?      // For user avatar/profile picture
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  favorites     Favorite[]
+  collections   Collection[]
+  // Auth related fields
+  auth_session  Session[]
+  auth_key      Key[]
+  activities    Activity[]
+}
+
+// Favorites Table - Links users to their favorite recipes
+model Favorite {
+  id          String   @id @default(cuid())
+  user_id     String
+  recipe_id   String   // MealDB recipe ID
+  created_at  DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, recipe_id])
+  @@index([user_id])
+}
+
+// Collections Table - For organizing recipes into groups
+model Collection {
+  id          String             @id @default(cuid())
+  name        String
+  description String?
+  isPublic    Boolean           @default(false)
+  userId      String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  
+  // Relations
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipes     CollectionRecipe[]
+
+  @@index([userId])
+  @@index([isPublic])
+}
+
+// Collection-Recipe Junction Table
+model CollectionRecipe {
+  id           String     @id @default(cuid())
+  collectionId String
+  recipeId     String    // MealDB recipe ID
+  addedAt      DateTime   @default(now())
+  notes        String?
+  
+  // Relations
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, recipeId])
+  @@index([collectionId])
+}
+
+// Auth-related models (using Lucia Auth)
+model Session {
+  id             String   @id
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  user           User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Key {
+  id              String   @id
+  hashed_password String?
+  user_id         String
+  user            User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Activity {
+  id         String   @id @default(cuid())
+  user_id    String
+  type       String   // 'view', 'favorite', 'collection'
+  recipe_id  String
+  details    String?  // Additional info like collection name
+  created_at DateTime @default(now())
+  
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+} 
