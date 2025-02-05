@@ -14,13 +14,13 @@ export default async function DashboardPage() {
 
   // Get total count for pagination
   const totalFavorites = await db.favorite.count({
-    where: { userId: session.id }
+    where: { user_id: session.id }
   })
 
   // Get paginated favorites
   const favorites = await db.favorite.findMany({
-    where: { userId: session.id },
-    orderBy: { createdAt: 'desc' },
+    where: { user_id: session.id },
+    orderBy: { created_at: 'desc' },
     take: FAVORITES_PER_PAGE
   })
 
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   const favoriteRecipes = await Promise.all(
     favorites.map(async (fav) => {
       const recipeData = await getFeaturedRecipes()
-      return recipeData.find(r => r.idMeal === fav.recipeId)
+      return recipeData.find(r => r.idMeal === fav.recipe_id)
     })
   ).then(recipes => recipes.filter((r): r is MealDBRecipe => r !== undefined))
 
